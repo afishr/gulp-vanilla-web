@@ -14,30 +14,44 @@ var gulp = require('gulp'),
 	sourcemap = require('gulp-sourcemaps'),
 	paths = {
 		src: {
-			html: 'app/_src/**/[^_]*.html',
-			script: 'app/_src/js/**/[^_]*.*',
-			style: 'app/_src/sass/**/[^_]*.*',
-			img: 'app/_src/img/**/*.*',
-			font: 'app/_src/fonts/**/*.*',
+			html: 'src/public/_src/**/[^_]*.html',
+			script: 'src/public/_src/js/**/[^_]*.*',
+			style: 'src/public/_src/sass/**/[^_]*.*',
+			img: 'src/public/_src/img/**/*.*'
+		},
+		dev: {
+			html: 'src/public/',
+			script: 'src/public/js/',
+			style: 'src/public/css/',
+			img: 'src/public/img'
 		},
 		dist: {
-			html: 'app/.',
-			script: 'app/js/',
-			style: 'app/css/',
-			img: 'app/img',
-			font: 'app/fonts/',
+			html: 'build/public/',
+			script: 'build/public/js/',
+			style: 'build/public/css/',
+			img: 'build/public/img'
 		},
 		watch: {
-			html: 'app/src/**/*.html',
-			script: 'app/src/js/*.*',
-			style: 'app/src/sass/*.*',
-			img: 'app/src/**/*.*',
-			font: 'app/src/fonts/**/*.*'
+			html: 'src/public/_src/**/*.html',
+			script: 'src/public/_src/js/**/*.*',
+			style: 'src/public/_src/sass/**/*.*',
+			img: 'src/public/_src/img/**/*.*'
 		}
 	},
-	serverConfig = {
+	devServerConfig = {
 		server: {
-			baseDir: "./app/"
+			baseDir: "./src/"
+		},
+		open: false,
+		notify: false,
+		tunnel: false,
+		host: 'localhost',
+		port: 1999,
+		logPrefix: "BS"
+	},
+	prodServerConfig = {
+		server: {
+			baseDir: "./build/"
 		},
 		open: false,
 		notify: false,
@@ -47,12 +61,13 @@ var gulp = require('gulp'),
 		logPrefix: "BS"
 	}
 
+
 /* Dev build*/
 /* HTML-dev-Build */
 gulp.task('html-dev-build', function() {
 	gulp.src(paths.src.html)
 		.pipe(rigger())
-		.pipe(gulp.dest(paths.dist.html));
+		.pipe(gulp.dest(paths.dev.html));
 });
 
 
@@ -70,7 +85,7 @@ gulp.task('style-dev-build', function() {
 			remove: false
 		}))
 		.pipe(sourcemap.write())
-		.pipe(gulp.dest(paths.dist.style));
+		.pipe(gulp.dest(paths.dev.style));
 });
 
 /* Script-dev-Build */
@@ -79,37 +94,38 @@ gulp.task('script-dev-build', function() {
 		.pipe(sourcemap.init())
 		.pipe(rigger())
 		.pipe(sourcemap.write())
-		.pipe(gulp.dest(paths.dist.script));
+		.pipe(gulp.dest(paths.dev.script));
 });
 
 /* Images-dev-Build */
 gulp.task('img-dev-build', function() {
 	gulp.src(paths.src.img)
-		.pipe(newer(paths.dist.img))
+		.pipe(newer(paths.src.img))
 		.pipe(imagemin({
 			progressive: true,
 			svgoPlugins: [{removeViewBox: false}],
 			use: [pngquant()],
 			interlaced: true
 		}))
-		.pipe(gulp.dest(paths.dist.img));
-});
-
-/* Fonts-dev-Build */
-gulp.task('fonts-dev-build', function() {
-	gulp.src(paths.src.font)
-		.pipe(newer(paths.dist.font))
-		.pipe(gulp.dest(paths.dist.font));
+		.pipe(gulp.dest(paths.dev.img));
 });
 
 /*Productin build*/
+/* Deploy */
+gulp.task('deploy', function() {
+	gulp.src(['src/**/*.*', '!src/public/{_src,_src/**}', '!src/public/{js,css,**/*.html}', '!src/public/{js/**,css/**}'])
+	.pipe(gulp.dest('build/'));
+});
+
 /* HTML-prod-Build */
 gulp.task('html-prod-build', function() {
 	gulp.src(paths.src.html)
 		.pipe(rigger())
 		.pipe(htmlmin({
 			collapseWhitespace: true,
-			removeComments: true
+			removeComments: true,
+			minifyCSS: true,
+			minifyJS: true
 		}))
 		.pipe(gulp.dest(paths.dist.html));
 });
@@ -142,7 +158,7 @@ gulp.task('script-prod-build', function() {
 /*Common*/
 /* WebServer */
 gulp.task('server', function() {
-	browserSync.init(serverConfig);
+	browserSync.init(devServerConfig);
 });
 
 /* Watch */
@@ -151,22 +167,21 @@ gulp.task('watch', function() {
 	gulp.watch(paths.watch.style, ['style-dev-build', browserSync.reload])
 	gulp.watch(paths.watch.script, ['script-dev-build', browserSync.reload])
 	gulp.watch(paths.watch.img, ['img-dev-build', browserSync.reload])
-	gulp.watch(paths.watch.fonts, ['fonts-dev-build', browserSync.reload])
 });
 
+/* Build */
 gulp.task('prod', [
+  'deploy',
 	'html-prod-build',
 	'style-prod-build',
 	'script-prod-build'
 ]);
 
-/* Build */
 gulp.task('dev', [
 	'html-dev-build',
 	'style-dev-build',
 	'script-dev-build',
-	'img-dev-build',
-	'fonts-dev-build'
+	'img-dev-build'
 ]);
 
 /* Default */
