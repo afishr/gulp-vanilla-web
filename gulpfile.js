@@ -14,10 +14,10 @@ var gulp = require('gulp'),
 	sourcemap = require('gulp-sourcemaps'),
 	paths = {
 		src: {
-			html: 'src/public/_src/**/[^_]*.html',
-			script: 'src/public/_src/js/**/[^_]*.*',
-			style: 'src/public/_src/sass/**/[^_]*.*',
-			img: 'src/public/_src/img/**/*.*'
+			html: 'src/src-public/**/[^_]*.html',
+			script: 'src/src-public/js/**/[^_]*.*',
+			style: 'src/src-public/sass/**/[^_]*.*',
+			img: 'src/src-public/img/**/*.*'
 		},
 		dev: {
 			html: 'src/public/',
@@ -32,10 +32,10 @@ var gulp = require('gulp'),
 			img: 'build/public/img'
 		},
 		watch: {
-			html: 'src/public/_src/**/*.html',
-			script: 'src/public/_src/js/**/*.*',
-			style: 'src/public/_src/sass/**/*.*',
-			img: 'src/public/_src/img/**/*.*'
+			html: 'src/src-public/**/*.html',
+			script: 'src/src-public/js/**/*.*',
+			style: 'src/src-public/sass/**/*.*',
+			img: 'src/src-public/img/**/*.*'
 		}
 	},
 	devServerConfig = {

@@ -1,13 +1,14 @@
 # Custom
+
 design/
 node_modules/
 build/
 libs/
 src/config/
-src/public/js/
-src/public/css/
-src/public/img/
-src/public/**/*.html
+src/private/
+src/public/
+
+
 *.todo
 
 # Windows image file caches
